@@ -1,10 +1,16 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 
-DATABASE_URL = "postgresql://admin@localhost/studylogger"
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://admin@localhost/studylogger")
+
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)

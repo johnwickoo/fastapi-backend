@@ -1,10 +1,10 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
-
+from datetime import datetime
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://admin@localhost/studylogger")
 
@@ -18,12 +18,12 @@ Base = declarative_base()
 
 class SessionLog(Base):
     __tablename__ = "sessions"
-    date = Column(String)
     id = Column(Integer, primary_key=True, index=True)
     task = Column(String)
     hours = Column(Integer)
     rating = Column(Integer)
     blockers = Column(String, default="none")
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 Base.metadata.create_all(bind=engine)
 

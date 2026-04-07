@@ -1,59 +1,42 @@
-# FastAPI Session Logger
+# FastAPI Study Logger API
 
-This is a small FastAPI app for recording study or work sessions and reading them back later.
+A REST API for logging and tracking daily study sessions.
+
+## Live URL
+https://web-production-8e17a6.up.railway.app
+
+## Tech Stack
+- Python / FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Pydantic
+- Deployed on Railway
 
 ## Endpoints
 
-### `POST /log`
+### POST /log
+Log a new study session.
 
-This endpoint saves a new session to `sessions.txt`.
-
-Send a JSON body with:
-
-- `task`: the name of the task you worked on
-- `hours`: how many hours you spent
-- `rating`: a score for how the session went
-
-Example request:
-
-```json
+Request body:
 {
-  "task": "Build API routes",
-  "hours": 2,
-  "rating": 5
+  "task": "string",
+  "hours": int,
+  "rating": int,
+  "blockers": "string"
 }
-```
 
-Example response:
+### GET /sessions
+Returns all logged sessions.
 
-```json
-{
-  "message": "Session logged",
-  "data": {
-    "task": "Build API routes",
-    "hours": 2,
-    "rating": 5
-  }
-}
-```
+### GET /sessions/{id}
+Returns a single session by ID.
 
-### `GET /sessions`
+### DELETE /sessions/{id}
+Deletes a session by ID.
 
-This endpoint reads all saved sessions from `sessions.txt` and returns them as a list.
-
-If no sessions have been logged yet, it returns an empty list.
-
-Example response:
-
-```json
-{
-  "sessions": [
-    {
-      "task": "Build API routes",
-      "hours": 2,
-      "rating": 5
-    }
-  ]
-}
-```
-
+## Run Locally
+1. Clone the repo
+2. Install dependencies: pip install -r requirements.txt
+3. Start PostgreSQL and create a database
+4. Set DATABASE_URL environment variable
+5. Run: uvicorn main:app --reload

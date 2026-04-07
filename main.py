@@ -12,6 +12,7 @@ Base = declarative_base()
 
 class SessionLog(Base):
     __tablename__ = "sessions"
+    date = Column(String)
     id = Column(Integer, primary_key=True, index=True)
     task = Column(String)
     hours = Column(Integer)

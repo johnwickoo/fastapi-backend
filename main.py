@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SECRET_KEY = "B2k7m5Pq9TgXsV1aCf8UwR4nYjD3hL0ZbE6oKrMzQpAuHcF"
+SECRET_KEY = "input your own secret key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
@@ -54,6 +54,20 @@ class SessionInput(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
+
+class SensorReading(BaseModel):
+    temperature: float
+    humidity: float
+    device_id: str = "esp32-wokwi"
+
+class SensorReadingLog(Base):
+    __tablename__ = "readings"
+    id = Column(Integer, primary_key=True, index=True)
+    temperature = Column(Float)
+    humidity = Column(Float)
+    device_id = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
     
 def get_db():
     db = SessionLocal()
@@ -130,3 +144,15 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
     token_data.update({"exp": expire})
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": token, "token_type": "bearer"}
+
+@app.post("/readings")
+def log_reading(reading: SensorReading, db: Session = Depends(get_db)):
+    entry = SensorReadingLog(**reading.dict())
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+    return entry
+
+@app.get("/readings")
+def get_readings(db: Session = Depends(get_db)):
+    return db.query(SensorReadingLog).all()

@@ -1,12 +1,12 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Float
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 SECRET_KEY = "input your own secret key"
@@ -33,7 +33,7 @@ class SessionLog(Base):
     hours = Column(Integer)
     rating = Column(Integer)
     blockers = Column(String, default="none")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 class User(Base):
     __tablename__ = "users"
@@ -66,7 +66,7 @@ class SensorReadingLog(Base):
     temperature = Column(Float)
     humidity = Column(Float)
     device_id = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     
 def get_db():
@@ -94,7 +94,9 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 @app.post("/log")
 def log_session(session: SessionInput, db: Session = Depends(get_db)):
-    entry = SessionLog(**session.dict())
+    session_data = session.model_dump()
+    session_data["task"] = session_data["task"].title()
+    entry = SessionLog(**session_data)
     db.add(entry)
     db.commit()
     db.refresh(entry)
